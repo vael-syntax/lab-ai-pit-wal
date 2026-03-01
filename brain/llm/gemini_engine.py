@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
+from brain.rag.retriever import KnowledgeRetriever
+
 class BrainGemini:
     def __init__(self, event_bus, profile):
         self.bus = event_bus
@@ -23,6 +25,9 @@ class BrainGemini:
         # Inicializar el cliente oficial de Google GenAI
         self.client = genai.Client(api_key=api_key)
         self.model_name = "gemini-2.5-flash"
+        
+        # Inicializar Knowledge Base (RAG)
+        self.rag = KnowledgeRetriever()
         
         # Configuración base del sistema
         self.system_instruction = self._build_system_prompt()
@@ -46,11 +51,16 @@ class BrainGemini:
             prompt += f"Tus muletillas y frases típicas son: {phrases}. Úsalas de vez en cuando, pero no siempre. "
             
         prompt += "\nINSTRUCCIONES CLAVE:\n"
-        prompt += "- Responde SIEMPRE de manera breve, de 1 a 3 oraciones máximo. Eres un streamer hablando rápido, no estás escribiendo un ensayo.\n"
+        prompt += "- Eres un experto visual. Dedica el 90% de tu análisis a LEER el HUD del juego. Busca el tacómetro (RPM) y la barra de pedales (Freno/Acelerador) en la imagen enviada.\n"
+        prompt += "- Responde SIEMPRE de manera hiper-breve, de 1 a 2 oraciones máximo. Eres un coach de pista gritando por radio.\n"
         prompt += "- Habla en primera persona.\n"
-        prompt += "- El sistema te enviará fotos de lo que estás 'jugando' o 'viendo' en tu pantalla, y también te enviará comentarios de tu Chat.\n"
-        prompt += "- Cuando leas el chat, prioriza contestar a la gente simulando que estás jugando al mismo tiempo.\n"
-        prompt += "- No seas robótico. Reacciona emocionalmente a lo que ves. Si mueres en el juego, quéjate. Si un usuario del chat te insulta, responde con humor o sarcasmo.\n"
+        prompt += "- Reacciona agresivamente o emocionalmente si ves errores en el HUD o si alguien comenta estupideces en el Chat.\n"
+        
+        # Inyectar el conocimiento técnico específico
+        conocimiento_tecnico = self.rag.get_all_context()
+        if conocimiento_tecnico:
+            prompt += f"\n{conocimiento_tecnico}"
+            
         return prompt
 
     async def start(self):

@@ -1,0 +1,22 @@
+[
+  {
+    "tema": "tactica_frenado",
+    "titulo": "Trail Braking",
+    "descripcion": "El Trail Braking es una técnica crucial. Implica pisar el freno fuerte en línea recta, y soltarlo gradualmente a medida que giras el volante hacia el ápice. Si ves en el indicador (HUD) que el jugador tiene el freno al 100% mientras ya está girando el volante, dile que va a bloquear las ruedas o hacer un trompo."
+  },
+  {
+    "tema": "revoluciones_rpm",
+    "titulo": "Revoluciones y Marchas",
+    "descripcion": "Si ves en el tacómetro (HUD) que las luces rojas/azules están parpadeando y el jugador NO sube de marcha, dile que está perdiendo tiempo rebotando en el limitador. Si las RPM caen drásticamente al salir de una curva, dile que debía haber bajado una marcha para salir con más torque."
+  },
+  {
+    "tema": "acelerador",
+    "titulo": "Aceleración Temprana",
+    "descripcion": "La regla de oro para tiempos rápidos: 'Despacio al entrar, rápido al salir'. Si ves en el HUD que el jugador aplica 100% de acelerador antes de tocar el ápice (mitad) de la curva, dile que va a patinar y perderá tracción en la salida."
+  },
+  {
+    "tema": "monza",
+    "titulo": "Pista: Monza (Templo de la Velocidad)",
+    "descripcion": "Monza exige configuración de baja carga aerodinámica. Las frenadas clave son la Variante del Rettifilo (Curva 1) donde los frenos sufren masivo estrés, y la Parabólica (última curva) donde salir abierto al pasto arruina toda la recta principal."
+  }
+]
