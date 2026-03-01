@@ -11,7 +11,7 @@ from core.event_bus import EventBus
 from perception.vision.capture import VisionCapture
 from integrations.obs.controller import ObsMockController
 from brain.llm.gemini_engine import BrainGemini
-from integrations.voice.elevenlabs_mock import ElevenLabsMock
+from integrations.voice.macos_tts import MacOSTTS
 from integrations.chat.local_cli import LocalChatCLI
 
 def load_profile(profile_path: str) -> ProfileSchema:
@@ -59,7 +59,8 @@ async def main():
         brain_module = BrainGemini(bus, profile)
         await brain_module.start()
         
-        voice_module = ElevenLabsMock(bus)
+        # ! CAMBIO A VOZ REAL MAC OS
+        voice_module = MacOSTTS(bus)
         await voice_module.start()
         
         chat_module = LocalChatCLI(bus)

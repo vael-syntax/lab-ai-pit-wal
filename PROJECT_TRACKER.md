@@ -22,11 +22,11 @@ Lista priorizada de tareas que siguen para continuar el desarrollo:
 - [x] **2. Integración con OBS (Salidas)**
     - [x] Configurar cliente `obs-websocket-py` dentro de `integrations/obs/`.
     - [x] Crear listeners en el Orquestador para que cuando se cargue un perfil, mande un evento al bus "load_scene" y el módulo de OBS cambie la escena del avatar automáticamente.
-- [ ] **3. Cerebro Inteligente (Integración Gemini Real)**
-    - Instalar dependencias (`google-genai`, `python-dotenv`).
-    - Configurar variables de entorno seguras (`.env`).
-    - Programar `brain/llm/gemini_engine.py` para analizar el Base64 visual asíncronamente junto con el chat y devolver análisis narrativos.
-    - Integrar en `core/orchestrator.py`.
+- [x] **3. Cerebro Inteligente (Integración Gemini Real)**
+    - [x] Instalar dependencias (`google-genai`, `python-dotenv`).
+    - [x] Configurar variables de entorno seguras (`.env`).
+    - [x] Programar `brain/llm/gemini_engine.py` para analizar el Base64 visual asíncronamente junto con el chat y devolver análisis narrativos.
+    - [x] Integrar en `core/orchestrator.py`.
 - [x] **2. Módulo de Visión (Zero-Disk Writes)**
     - [x] Crear script que tome capturas usando `mss` y las mantenga **directamente en memoria RAM (Base64)** sin guardar en el disco de la Mac.
     - [ ] Integrar un VLM en la nube (OpenAI/Gemini Vision API) para analizar la pantalla enviando el *stream* Base64 directamente.
@@ -36,9 +36,10 @@ Lista priorizada de tareas que siguen para continuar el desarrollo:
     - [x] **IA Avanzada:** Implementar la "Máquina de Estados de Comportamiento".
     - [x] **Silencio Dinámico:** No hablar con cada frame, solo si la situación lo amerita (leer la mesa).
     - [x] **Buffer de Chat:** Agrupar mensajes de chat recibidos para responder al chat y al video al mismo tiempo.
-- [x] **4. Módulo de Voz (ElevenLabs)**
-    - [x] Consumir el texto emitido por el Cerebro y mandarlo a ElevenLabs (`integrations/voice/`).
-    - [x] Reproducir el audio resultante.
+- [ ] **5. Módulo de Voz (macOS Native TTS)**
+    - Crear `integrations/voice/macos_tts.py` usando el comando asíncrono `say` nativo de Mac.
+    - Omitir depender de ElevenLabs por ahora para pruebas 100% locales y gratuitas.
+    - Reproducir el audio resultante.
 
 ## 🧠 Notas Arquitectónicas Clave
 *   **Ejecución:** Todo el núcleo debe usarse usando `asyncio`. Evitar el uso de librerías bloqueantes (`time.sleep()`, requests sincrónicas sin wrappers).
