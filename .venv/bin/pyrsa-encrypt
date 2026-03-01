@@ -1,0 +1,6 @@
+#!/Users/armandom4/Documents/Proyectos_Personales/Galan_AI_Hub/.venv/bin/python3
+import sys
+from rsa.cli import encrypt
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(encrypt())
