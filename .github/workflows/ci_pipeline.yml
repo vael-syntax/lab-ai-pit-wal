@@ -31,7 +31,6 @@ jobs:
         # Exit-zero treats all errors as warnings
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
         
-    - name: Event Bus Integrity Tests
+    - name: Event Bus Integrity & Latency Tests (PyTest)
       run: |
-        # Placeholder for future asyncio pytest suite to test event bus decoupling
-        echo "Pending: Unit tests for core/event_bus.py"
+        pytest tests/ -v
