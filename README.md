@@ -1,30 +1,47 @@
 <div align="center">
 
 # `[ lab-ai-pit-wall ]`
-*— Autonomous Sim Racing Commentator Engine —*
+*— Autonomous Multi-Modal Sim Racing Commentator Engine —*
 
-> "Real-time telemetry meets asynchronous AI."
+> "Real-time perception meets asynchronous cognitive audio generation. Zero friction."
 
 </div>
 
 ---
 
-### [ Module Overview ]
+### [ System Blueprint ]
 
-This repository contains the core logic for an **Autonomous AI Commentator** (The Pit Wall) designed to analyze real-time context from Sim Racing telemetry and generate dynamic, non-repetitive narration using LLMs (Google Gemini) and local/cloud TTS (Piper TTS/macOS).
+This is not a text wrapper. This is **The Pit Wall**: an autonomous, multi-modal cognitive engine designed to ingest raw telemetry and visual data from a live Sim Racing environment, and output dynamic, human-like commentary with near-zero latency.
 
-Instead of relying on sterile, pre-programmed responses, this module uses a dynamic *Topic Roulette* architecture to inject varied perspectives (Track condition, Traffic, Tire thermals, Race craft) into the AI's prompt stream asynchronously.
+Built as a highly decoupled event-driven architecture, this system eliminates the static, repetitive loops of traditional AI bots by unifying **Computer Vision**, **Asynchronous LLM Orchestration**, and **Hardware-Native TTS**.
 
-### ⚙️ Core Architecture
+---
 
-*   `brain/llm/gemini_engine.py`: The nerve center. Manages prompt generation, contextual awareness, and the *Topic Roulette* system to ensure the AI doesn't fall into repetitive loops.
-*   `profiles/paco_boxes.yaml`: The personality matrix. Defines the structural rules, constraints, and dynamic tags that guide the AI's commentary style without forcing hardcoded phrases.
-*   `integrations/voice/`: The vocal cords. Integrations with lightweight TTS models (Piper ONNX) and fallback OS-level synthesis (macOS `say`) for zero-latency audio delivery.
-*   `core/orchestrator.py`: The event loop. Synchronizes telemetry ingestion with the LLM generation and TTS playback queues.
+### ⚙️ Core Architecture & Subsystems
+
+The repository is structured around independent nervous systems communicating via an internal asynchronous event bus.
+
+#### 1. Perception Layer (Vision & Telemetry)
+*   **`perception/vision/capture.py`**: The optical nerve. A direct-to-RAM screen capture module (via `mss` and `PIL`) that continuously grabs live frames from the simulation, resizes them, and encodes them directly to base64 streams without ever touching the disk. It publishes visual context arrays down the pipeline.
+
+#### 2. Cognitive Core (LLM & Logic)
+*   **`brain/llm/gemini_engine.py`**: The cognitive engine. It ingests the multi-modal streams (vision + context) and processes them through Google Gemini. The engine features our proprietary **Topic Roulette**—a dynamic prompt injector that asynchronously forces the AI to focus on varying race aspects (traffic, tire thermals, race craft) to guarantee unscripted variance.
+*   **`profiles/paco_boxes.yaml`**: The personality matrix. Instead of hardcoded phrases, this defines structural flow rules and constraints, allowing the engine to generate organic, constraint-bound commentary.
+
+#### 3. Output Layer (Zero-Latency Audio)
+*   **`integrations/voice/`**: The local vocal tract. The system bypasses slow cloud-TTS by integrating directly with a local ONNX instance of Piper TTS (`piper_tts.py`), falling back natively to macOS OS-level synthesis (`macos_tts.py`) when immediate friction reduction is required.
+
+#### 4. Orchestrator
+*   **`core/orchestrator.py`**: The asynchronous event loop that synchronizes the optical nerve, the cognitive core, and the output layer.
 
 ---
 
 ### 🧬 Vael Taxonomic Origin: `Lab`
-This is a **Sandbox/Lab** project. It represents extreme experimentation with asynchronous LLM control and real-time audio synthesis. Expect friction, rapid iteration, and raw code.
+This project sits firmly in the **Sandbox/Lab** zone. It represents aggressive experimentation with continuous visual tracking, local inference loops, and sub-second multi-thread synchronization.
 
-*Code is kinetic. Friction is the enemy.*
+**Stack:** `Python` | `asyncio` | `mss` | `OpenCV/PIL` | `Google Gemini API` | `Piper TTS (ONNX)`
+
+---
+<div align="center">
+  <i>"Let the algorithms narrate the speed."</i>
+</div>
