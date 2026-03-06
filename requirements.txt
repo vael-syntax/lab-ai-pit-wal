@@ -1,2 +1,5 @@
 pydantic>=2.5.0
 PyYAML>=6.0.1
+piper-tts
+sounddevice
+numpy

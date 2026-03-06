@@ -1,7 +1,29 @@
 import sys
+import os
 import yaml
 import argparse
 from pathlib import Path
+
+# Fix Definitivo MacOS (Error 35): Wrapper seguro para la consola
+class SafePrintWrapper:
+    def __init__(self, stream):
+        self.stream = stream
+    def write(self, data):
+        try:
+            self.stream.write(data)
+            self.stream.flush()
+        except BlockingIOError:
+            pass # Ignoramos logs en momentos de buffer colapsado (evita crashear la IA)
+    def flush(self):
+        try:
+            self.stream.flush()
+        except BlockingIOError:
+            pass
+    def __getattr__(self, name):
+        return getattr(self.stream, name)
+        
+sys.stdout = SafePrintWrapper(sys.stdout)
+sys.stderr = SafePrintWrapper(sys.stderr)
 
 # Ajustar PYTHONPATH temporalmente asumiendo ejecución desde directorio raíz
 sys.path.append(str(Path(__file__).parent.parent))
@@ -11,7 +33,7 @@ from core.event_bus import EventBus
 from perception.vision.capture import VisionCapture
 from integrations.obs.controller import ObsMockController
 from brain.llm.gemini_engine import BrainGemini
-from integrations.voice.macos_tts import MacOSTTS
+from integrations.voice.piper_tts import PiperTTS
 from integrations.chat.local_cli import LocalChatCLI
 
 def load_profile(profile_path: str) -> ProfileSchema:
@@ -29,6 +51,7 @@ def load_profile(profile_path: str) -> ProfileSchema:
 async def main():
     parser = argparse.ArgumentParser(description="Galan AI Streamer Hub Orchestrator")
     parser.add_argument("profile", help="Ruta al archivo YAML del perfil a cargar (ej. profiles/tony.yaml)")
+    parser.add_argument("--interval", type=float, default=3.0, help="Intervalo en segundos entre cada captura de pantalla (vision)")
     args = parser.parse_args()
 
     print(f"[*] Inicializando AI Streamer Hub...")
@@ -59,8 +82,11 @@ async def main():
         brain_module = BrainGemini(bus, profile)
         await brain_module.start()
         
-        # ! CAMBIO A VOZ REAL MAC OS
-        voice_module = MacOSTTS(bus)
+        # ! CAMBIO A VOZ LOCAL PIPER TTS
+        import os
+        model_path = os.path.join(os.getcwd(), "models", "voice", "es_model.onnx")
+        config_path = os.path.join(os.getcwd(), "models", "voice", "es_model.onnx.json")
+        voice_module = PiperTTS(bus, model_path, config_path)
         await voice_module.start()
         
         chat_module = LocalChatCLI(bus)
@@ -78,7 +104,7 @@ async def main():
             vision_module = VisionCapture(
                 event_bus=bus, 
                 targets=profile.vision.targets,
-                interval=3.0 # Capturar cada 3 segundos
+                interval=args.interval
             )
             
             # Suscribirnos temporalmente para ver que sí está emitiendo

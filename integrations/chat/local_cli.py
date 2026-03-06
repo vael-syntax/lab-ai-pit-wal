@@ -17,13 +17,21 @@ class LocalChatCLI:
         await asyncio.sleep(2)
         while self._running:
             try:
-                # ainmput no bloquea el event loop principal
                 msg = await ainput("Tú (Chat): ")
                 if msg.strip():
-                    await self.bus.publish("chat_message_received", {
-                        "username": "UsuarioLocal",
-                        "message": msg.strip()
-                    })
+                    if msg.strip().lower() == "/clear":
+                        print("[Chat Local] 🧹 Solicitando limpieza de memoria del cerebro...")
+                        await self.bus.publish("clear_memory", {})
+                    elif msg.strip().lower().startswith("/pista "):
+                        # Comando para setear la pista manualmente
+                        pista_name = msg.strip()[7:].strip()
+                        print(f"[Chat Local] 🏎️ Forzando detector de pista a: {pista_name}")
+                        await self.bus.publish("set_track", {"track_name": pista_name})
+                    else:
+                        await self.bus.publish("chat_message_received", {
+                            "username": "UsuarioLocal",
+                            "message": msg.strip()
+                        })
             except asyncio.CancelledError:
                 break
             except Exception as e:
