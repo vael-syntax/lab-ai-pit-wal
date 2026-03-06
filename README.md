@@ -24,12 +24,14 @@ The repository is structured around independent nervous systems communicating vi
 #### 1. Perception Layer (Vision & Telemetry)
 *   **`perception/vision/capture.py`**: The optical nerve. A direct-to-RAM screen capture module (via `mss` and `PIL`) that continuously grabs live frames from the simulation, resizes them, and encodes them directly to base64 streams without ever touching the disk. It publishes visual context arrays down the pipeline.
 
-#### 2. Cognitive Core (LLM & Logic)
-*   **`brain/llm/gemini_engine.py`**: The cognitive engine. It ingests the multi-modal streams (vision + context) and processes them through Google Gemini. The engine features our proprietary **Topic Roulette**—a dynamic prompt injector that asynchronously forces the AI to focus on varying race aspects (traffic, tire thermals, race craft) to guarantee unscripted variance.
-*   **`profiles/paco_boxes.yaml`**: The personality matrix. Instead of hardcoded phrases, this defines structural flow rules and constraints, allowing the engine to generate organic, constraint-bound commentary.
+#### 2. The Cognitive Core (The Pit Wall)
+*   **`brain/llm/gemini_engine.py`**: A specialized, low-latency Google Gemini integration.
+*   **`Topic Roulette`**: Injects randomized, systemic constraints every few seconds to prevent LLM fatigue.
+*   **`profiles/`**: The personality matrix. YAML files that structurally define rules, limits, and jargon for the agent.
 
-#### 3. Output Layer (Zero-Latency Audio)
+#### 3. Output Layer (Zero-Latency Audio & APIs)
 *   **`integrations/voice/`**: The local vocal tract. The system bypasses slow cloud-TTS by integrating directly with a local ONNX instance of Piper TTS (`piper_tts.py`), falling back natively to macOS OS-level synthesis (`macos_tts.py`) when immediate friction reduction is required.
+*   **`docs/api/EVENT_PRIORITY.md`**: Definición oficial de la **API de Prioridades** para inyección de eventos (`high` / `low`) y control asíncrono sobre el modelo TTS.
 
 ---
 
