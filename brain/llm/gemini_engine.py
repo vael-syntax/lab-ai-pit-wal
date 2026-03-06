@@ -69,6 +69,24 @@ class BrainGemini:
         if self.profile.catchphrases:
             phrases = ", ".join(self.profile.catchphrases)
             prompt += f"Tus muletillas son: {phrases}. Úsalas de forma natural y esporádica.\n"
+        
+        # === CAPA 1: Restricciones Estrictas del Perfil (Anti-Alucinación) ===
+        if self.profile.strict_constraints:
+            prompt += "\n═══ RESTRICCIONES ABSOLUTAS (Violación = Respuesta Inválida) ═══\n"
+            for i, constraint in enumerate(self.profile.strict_constraints, 1):
+                prompt += f"{i}. {constraint}\n"
+            prompt += "═══════════════════════════════════════════════════════════════\n"
+        
+        # === CAPA 2: Directiva Anti-Alucinación Visual (hardcoded) ===
+        prompt += """
+PROTOCOLO ANTI-ALUCINACIÓN (No negociable):
+- Tu único source of truth son los FRAMES visuales que recibes.
+- Si el HUD de neumáticos muestra VERDE: están bien. No los menciones como problema.
+- Si el HUD de neumáticos muestra AMARILLO o ROJO: puedes comentarlo.
+- Si NO PUEDES VER el widget de neumáticos en el frame: NO HABES de neumáticos. Punto.
+- Los coches agrupados y en formación indican el INICIO de la carrera. Comportate como tal.
+- Lo que "sabes" de Sim Racing es contexto de fondo, NO es lo que está pasando en pantalla.
+"""
             
         prompt += "\nINSTRUCCIONES CLAVE DE FORMATO:\n"
         prompt += "- BREVEDAD EXPLOSIVA: Habla en 1 o 2 oraciones cortas máximo. Eres un comentarista reaccionando al instante, no un analista de post-carrera.\n"

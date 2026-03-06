@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 
 class VisionConfig(BaseModel):
     model_type: str = Field(description="Tipo de modelo (ej. YOLO, VLM, TelemetryAPI, OCR)")
@@ -18,6 +18,7 @@ class ProfileSchema(BaseModel):
     specialty: str = Field(description="Juego o categoría de especialidad")
     personality_prompt: str = Field(description="System prompt base para la personalidad de este streamer")
     catchphrases: List[str] = Field(default_factory=list, description="Muletillas o frases típicas")
+    strict_constraints: List[str] = Field(default_factory=list, description="Restricciones absolutas anti-alucinación para el LLM")
     vision: VisionConfig
     voice: VoiceConfig
     memory_namespace: str = Field(description="Namespace para RAG (documentos o embeddings propios)")
