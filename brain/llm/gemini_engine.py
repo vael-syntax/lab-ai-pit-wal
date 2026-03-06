@@ -9,6 +9,7 @@ from google import genai
 from google.genai import types
 
 from brain.rag.retriever import KnowledgeRetriever
+from core.memory import MemoryBuffer
 
 class BrainGemini:
     def __init__(self, event_bus, profile):
@@ -52,6 +53,9 @@ class BrainGemini:
         # Percepción Asíncrona (Ojo Periférico)
         self.eventos_en_segundo_plano = []
         self.analizando_fondo = False
+        
+        # 🧠 Short-Term Memory: Ventana deslizante de últimos 5 eventos significativos
+        self.memory = MemoryBuffer(limit=5, cooldown_seconds=30.0)
         
         # Rate Limiting / Error Handling
         self._is_rate_limited = False
@@ -126,6 +130,7 @@ class BrainGemini:
         self.chat_buffer.clear()
         self.tendencia_anterior = "Ninguna"
         self._frame_buffer.clear()
+        self.memory.clear()  # Reset Short-Term Memory
         self.last_spoken_time = 0.0 # Force it to respond immediately on next frame
         self.is_first_interaction = True # Resetear bienvenida
 
@@ -213,12 +218,16 @@ class BrainGemini:
             contexto_fondo = f"\n[FEEDBACK DEL DIRECTOR: Mientras hablabas ocurrió esto en pista: {eventos_str}. Integra esta información brevemente con lo que ves ahora mismo en tu respuesta.]\n"
             self.eventos_en_segundo_plano = [] # Limpiamos la libreta
 
+        # --- INYECTAR SHORT-TERM MEMORY en el contexto del prompt ---
+        context_from_memory = self.memory.get_context_string()
+        
         # --- PROMPT NATURAL (CERO REGLAS RÍGIDAS) ---
         instruccion_vision = (
             f"{contexto_previo}"
+            f"🧠 {context_from_memory}\n\n"
             f"Aquí están los últimos segundos del stream en vivo.\n"
             f"Lo último que dijiste fue: '{self.tendencia_anterior}'.\n\n"
-            "Míralo y reacciona de forma humana y natural. Continúa tu idea anterior o cambia de tema si ves algo nuevo.\n"
+            "Míralo y reacciona de forma humana y natural. Si el contexto reciente muestra algo que ya mencionaste, conéctalo o evoluciona la idea. No la repitas.\n"
             "Solo dame tu voz cruda, en 1 o 2 frases cortas. SIN etiquetas, SIN formatos, SIN análisis técnicos ocultos."
         )
         
@@ -271,8 +280,9 @@ class BrainGemini:
             if len(oraciones) > 3:
                 texto_hablado = " ".join(oraciones[:3])
                 
-            # LA NUEVA MEMORIA: Paco simplemente recuerda lo último que dijo
+            # Registrar en Short-Term Memory para contexto futuro
             self.tendencia_anterior = texto_hablado
+            self.memory.add_event("COMMENTARY", texto_hablado[:80])  # Cap en 80 chars para no saturar
             
             try:
                 print(f"   [Gemini Responde] '{texto_hablado}'")
