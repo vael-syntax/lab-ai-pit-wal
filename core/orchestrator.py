@@ -50,8 +50,8 @@ def load_profile(profile_path: str) -> ProfileSchema:
 
 async def main():
     parser = argparse.ArgumentParser(description="Galan AI Streamer Hub Orchestrator")
-    parser.add_argument("profile", help="Ruta al archivo YAML del perfil a cargar (ej. profiles/tony.yaml)")
-    parser.add_argument("--interval", type=float, default=3.0, help="Intervalo en segundos entre cada captura de pantalla (vision)")
+    parser.add_argument("profile", help="Ruta al archivo YAML del perfil a cargar (ej. profiles/paco_boxes.yaml)")
+    parser.add_argument("--interval", type=float, default=3.0, help="Intervalo en segundos entre cada captura (vision)")
     args = parser.parse_args()
 
     print(f"[*] Inicializando AI Streamer Hub...")
@@ -62,6 +62,13 @@ async def main():
         print(f"    - Módulo Visión: {profile.vision.model_type} ({'Activado' if profile.vision.enabled else 'Desactivado'})")
         print(f"    - Objetivos Visión: {', '.join(profile.vision.targets)}")
         print(f"    - Módulo Voz: {profile.voice.provider} (Estabilidad: {profile.voice.stability})")
+        
+        # Mostrar restricciones activas del perfil (Anti-Hallucination Protocol)
+        if profile.strict_constraints:
+            print(f"    - 🛡️  Anti-Alucinación: {len(profile.strict_constraints)} restricción(es) activa(s)")
+        else:
+            print(f"    - ⚠️  Sin restricciones activas de coherencia visual")
+
         
         # Inicializar EventBus
         bus = EventBus()
