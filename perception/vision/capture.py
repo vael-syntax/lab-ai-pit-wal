@@ -39,10 +39,18 @@ class VisionCapture:
                 img.save(buffer, format="JPEG", quality=75) # Compresión JPEG ligera
                 base64_image = base64.b64encode(buffer.getvalue()).decode('utf-8')
                 
-                # 4. Publicar el evento
+                # 4. Evaluación de Prioridad (Simulada para Interrupt Demo)
+                # En un entorno real, aquí se procesaría telemetría o bbox del yolo.
+                priority_flag = "low"
+                if "roja" in [t.lower() for t in self.targets] or "choque" in [t.lower() for t in self.targets]:
+                    priority_flag = "high"
+                    print("[Vision] ⚠️ CRÍTICO: Objetivo prioritario en mira. Pidiendo interrupción global.")
+                    await self.bus.publish("audio_interrupt", {"reason": "visual_critical_anomaly"})
+
                 payload = {
                     "image_b64": base64_image,
-                    "targets_expected": self.targets
+                    "targets_expected": self.targets,
+                    "priority": priority_flag
                 }
                 
                 # print("[Vision] Captura en RAM completada, publicando evento 'frame_captured'...")

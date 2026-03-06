@@ -31,8 +31,13 @@ The repository is structured around independent nervous systems communicating vi
 #### 3. Output Layer (Zero-Latency Audio)
 *   **`integrations/voice/`**: The local vocal tract. The system bypasses slow cloud-TTS by integrating directly with a local ONNX instance of Piper TTS (`piper_tts.py`), falling back natively to macOS OS-level synthesis (`macos_tts.py`) when immediate friction reduction is required.
 
-#### 4. Orchestrator
-*   **`core/orchestrator.py`**: The asynchronous event loop that synchronizes the optical nerve, the cognitive core, and the output layer.
+---
+
+### ⚠️ Known Limitations & Bottlenecks (The Reality Check)
+A Virtual Architect does not sell smoke. This system has known technical constraints that are actively being mitigated:
+1. **TTS Blocking:** While the architecture is decoupled, local TTS execution (`sd.RawOutputStream`) can block the audio thread. Eventual collision handles exist (interrupt flags), but rapid consecutive high-priority events can still cause micro-stutters.
+2. **CPU Spikes on Base64:** Capturing `1280x720` frames and encoding them in base64 within RAM (zero-disk I/O) saves latency but induces momentary CPU spikes on Apple Silicon. Benchmarking shows degradation if the interval drops below `0.5s` (2 FPS).
+3. **LLM Cognitive Latency:** Generating dynamic tokens with `Gemini 1.5 Pro` takes between `2.5s` to `4.0s` depending on Google's endpoint traffic. This means commentary is inherently "reactive" to the past 3 seconds, not predictive.
 
 ---
 

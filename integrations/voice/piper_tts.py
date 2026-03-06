@@ -18,7 +18,9 @@ class PiperTTS:
 
     async def start(self):
         self._running = True
+        self.interrupt_flag = False
         self.bus.subscribe("text_generated", self._on_text_generated)
+        self.bus.subscribe("audio_interrupt", self._on_interrupt)
         print("[Piper TTS] 🎙️ Escuchando textos para sintetizar...")
         # Iniciar el worker que procesa la cola de audio
         asyncio.create_task(self._audio_worker())
@@ -31,28 +33,51 @@ class PiperTTS:
 
     async def _audio_worker(self):
         while self._running:
-            text = await self.queue.get()
+            payload = await self.queue.get()
+            text = payload.get("text", "")
+            priority = payload.get("priority", "low")
             
-            # Avisamos al sistema (y a Gemini) que vamos a hablar
+            # Si se activó la interrupción global y este mensaje no es de alta prioridad, lo descartamos
+            if getattr(self, "interrupt_flag", False) and priority != "high":
+                self.queue.task_done()
+                continue
+                
             await self.bus.publish("speak_avatar", {"is_speaking": True})
             
             try:
-                print(f"\n🎙️ [Piper TTS] Hablando: '{text}'")
-                
-                # Sintetizar audio crudo y reproducirlo en tiempo real
+                print(f"\n🎙️ [Piper TTS] Hablando ({priority}): '{text}'")
                 audio_stream = self.voice.synthesize(text)
                 
-                # Reproducir usando sounddevice (bloquea solo este hilo hasta que termina la frase)
+                # Reseteamos flag temporalmente al empezar a hablar (a menos que siga activo)
+                self.interrupt_flag = False
+                
                 with sd.RawOutputStream(samplerate=self.sample_rate, channels=1, dtype='int16') as stream:
                     for chunk in audio_stream:
+                        # Si en medio de la reproducción nos interrumpen, cortamos en seco
+                        if getattr(self, "interrupt_flag", False) and priority != "high":
+                            print(f"[Piper TTS] 🛑 Interrupción de emergencia. Cortando frase actual.")
+                            break
                         stream.write(chunk.audio_int16_bytes)
+                        # Yield control al event loop sin matar la RAM para permitir lectura de interrupciones
+                        await asyncio.sleep(0.001)
                         
             except Exception as e:
                 print(f"[Piper TTS] ❌ Error reproduciendo audio: {e}")
             finally:
-                # Avisamos que terminamos de hablar
                 await self.bus.publish("speak_avatar", {"is_speaking": False})
                 self.queue.task_done()
+
+    async def _on_interrupt(self, payload):
+        """Callback for high-priority events that demand immediate silence from the TTS."""
+        print("[Piper TTS] ⚠️ Recibida señal de interrupción global. Purgando buffer de audio.")
+        self.interrupt_flag = True
+        # Purgamos los mensajes de baja prioridad pendientes en la cola
+        while not self.queue.empty():
+            try:
+                self.queue.get_nowait()
+                self.queue.task_done()
+            except asyncio.QueueEmpty:
+                break
 
     async def stop(self):
         self._running = False
